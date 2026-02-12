@@ -5,40 +5,52 @@ import os
 # API設定
 client = genai.Client(api_key=os.environ["GEMINI_API_KEY"])
 
-# --- ここを修正 ---
-# 'models/' を外して、リストにあった名称に変更します
-MODEL_ID = "gemini-3-flash" 
-# もし 3-flash でまた limit 0 が出る場合は "gemini-2.0-flash" を試してください
-# ----------------
-
-RSS_FEEDS = [
-    "https://hnrss.org/frontpage",
-    "https://zenn.dev/feed"
-]
+def get_available_model():
+    """利用可能なモデル一覧から最適なものを自動選択する"""
+    print("Fetching available models...")
+    try:
+        # 使用可能なモデルをリストアップ
+        models = client.models.list()
+        model_names = [m.name for m in models]
+        print(f"Available models: {model_names}")
+        
+        # 優先順位をつけて探す
+        priority_models = [
+            "gemini-2.0-flash", 
+            "gemini-1.5-flash",
+            "gemini-3-flash",
+            "gemini-2.0-flash-exp"
+        ]
+        
+        for pm in priority_models:
+            # SDKが内部で models/ を補完する場合があるため、両方の形式でチェック
+            if pm in model_names: return pm
+            if f"models/{pm}" in model_names: return f"models/{pm}"
+            
+        # 何も見つからない場合はリストの最初（大抵 Flash 系）を返す
+        return model_names[0]
+    except Exception as e:
+        print(f"Failed to list models: {e}")
+        return "gemini-2.0-flash" # フォールバック
 
 def main():
-    print("Starting report generation...")
+    # 実行時にモデルを決定
+    MODEL_ID = get_available_model()
+    print(f"Selected Model: {MODEL_ID}")
+
     report_content = f"# Daily Tech Report ({os.popen('date +%Y-%m-%d').read().strip()})\n\n"
+    report_content += f"使用モデル: `{MODEL_ID}`\n\n---\n"
+    
+    RSS_FEEDS = ["https://hnrss.org/frontpage", "https://zenn.dev/feed"]
     
     for url in RSS_FEEDS:
         print(f"Fetching feed: {url}")
         feed = feedparser.parse(url)
-        if not feed.entries:
-            continue
-
         for entry in feed.entries[:2]: 
-            prompt = f"""
-            以下の記事の要約と英語学習レポートを作成してください。
-            Title: {entry.title}
-            Link: {entry.link}
-            
-            1. 日本語で3行要約
-            2. 注目すべき技術用語(英語)と意味
-            3. (英文の場合) 構文のポイント解説（1箇所ピックアップ）
-            """
+            prompt = f"以下の記事を日本語で3行要約してください。\nTitle: {entry.title}\nLink: {entry.link}"
             
             try:
-                print(f"Calling Gemini API ({MODEL_ID}) for: {entry.title}")
+                print(f"Generating content for: {entry.title}")
                 response = client.models.generate_content(
                     model=MODEL_ID,
                     contents=prompt
@@ -46,13 +58,11 @@ def main():
                 if response.text:
                     report_content += f"## {entry.title}\n{response.text}\n\n---\n"
             except Exception as e:
-                print(f"Error: {e}")
-                report_content += f"## {entry.title}\n❌ エラー発生: {str(e)}\n\n---\n"
-                continue
+                report_content += f"## {entry.title}\n❌ エラー: {str(e)}\n\n---\n"
     
     with open("report.md", "w", encoding="utf-8") as f:
         f.write(report_content)
-    print("Success: report.md has been written.")
+    print("Done!")
 
 if __name__ == "__main__":
     main()
