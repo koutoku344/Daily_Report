@@ -4,12 +4,16 @@ import os
 
 # API設定
 client = genai.Client(api_key=os.environ["GEMINI_API_KEY"])
-MODEL_ID = "models/gemini-1.5-flash" 
+
+# --- ここを修正 ---
+# 'models/' を外して、リストにあった名称に変更します
+MODEL_ID = "gemini-3-flash" 
+# もし 3-flash でまた limit 0 が出る場合は "gemini-2.0-flash" を試してください
+# ----------------
 
 RSS_FEEDS = [
     "https://hnrss.org/frontpage",
-    "https://zenn.dev/feed",
-    "https://news.google.com/rss/topics/CAAqJggKIiBDQkFTRWdvSUwyMHZNRGRqTVhWbUVnSnRhSFFvQUFQAQ?hl=ja&gl=JP&ceid=JP:ja"
+    "https://zenn.dev/feed"
 ]
 
 def main():
@@ -20,7 +24,6 @@ def main():
         print(f"Fetching feed: {url}")
         feed = feedparser.parse(url)
         if not feed.entries:
-            report_content += f"⚠️ フィードの取得に失敗しました: {url}\n\n"
             continue
 
         for entry in feed.entries[:2]: 
@@ -35,23 +38,18 @@ def main():
             """
             
             try:
-                print(f"Calling Gemini API for: {entry.title}")
+                print(f"Calling Gemini API ({MODEL_ID}) for: {entry.title}")
                 response = client.models.generate_content(
                     model=MODEL_ID,
                     contents=prompt
                 )
-                # AIが空の返答をした場合のチェック
                 if response.text:
                     report_content += f"## {entry.title}\n{response.text}\n\n---\n"
-                else:
-                    report_content += f"## {entry.title}\n⚠️ AIからの応答が空でした。\n\n---\n"
             except Exception as e:
-                # エラーが起きたらその内容をレポートに書き込む
                 print(f"Error: {e}")
                 report_content += f"## {entry.title}\n❌ エラー発生: {str(e)}\n\n---\n"
                 continue
     
-    # ファイル書き出し
     with open("report.md", "w", encoding="utf-8") as f:
         f.write(report_content)
     print("Success: report.md has been written.")
