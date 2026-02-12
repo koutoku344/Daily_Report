@@ -2,9 +2,9 @@ import feedparser
 from google import genai
 import os
 
-# API設定 (2026年最新版の書き方)
+# API設定
 client = genai.Client(api_key=os.environ["GEMINI_API_KEY"])
-MODEL_ID = "gemini-1.5-flash" # モデルを指定
+MODEL_ID = "models/gemini-1.5-flash" 
 
 RSS_FEEDS = [
     "https://hnrss.org/frontpage",
@@ -16,7 +16,8 @@ def main():
     
     for url in RSS_FEEDS:
         feed = feedparser.parse(url)
-        for entry in feed.entries[:3]:
+        # 1.5 Flashの無料枠（RPM 15）を超えないよう、取得件数を少し抑えます
+        for entry in feed.entries[:2]: 
             prompt = f"""
             以下の記事の要約と英語学習レポートを作成してください。
             Title: {entry.title}
@@ -26,17 +27,17 @@ def main():
             2. 注目すべき技術用語(英語)と意味
             3. (英文の場合) 構文のポイント解説（1箇所ピックアップ）
             """
-            # モデル呼び出し
-            # main.py の 30行目付近
-            response = client.models.generate_content(
-                model="gemini-3-flash",  # これを試してください
-                contents="...",
-            )
-            #response = client.models.generate_content(
-            #    model=MODEL_ID,
-            #    contents=prompt
-            #)
-            report_content += f"## {entry.title}\n{response.text}\n\n---\n"
+            
+            try:
+                # モデル呼び出し（MODEL_ID変数を使い、promptを正しく渡します）
+                response = client.models.generate_content(
+                    model=MODEL_ID,
+                    contents=prompt
+                )
+                report_content += f"## {entry.title}\n{response.text}\n\n---\n"
+            except Exception as e:
+                print(f"Error processing {entry.title}: {e}")
+                continue
     
     with open("report.md", "w", encoding="utf-8") as f:
         f.write(report_content)
