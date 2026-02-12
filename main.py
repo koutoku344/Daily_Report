@@ -4,6 +4,8 @@ import os
 
 # API設定
 client = genai.Client(api_key=os.environ["GEMINI_API_KEY"])
+
+# モデルID（プレフィックス付き）
 MODEL_ID = "models/gemini-1.5-flash" 
 
 RSS_FEEDS = [
@@ -16,7 +18,7 @@ def main():
     
     for url in RSS_FEEDS:
         feed = feedparser.parse(url)
-        # 1.5 Flashの無料枠（RPM 15）を超えないよう、取得件数を少し抑えます
+        # 枠を考慮して、各フィードから上位2記事を取得
         for entry in feed.entries[:2]: 
             prompt = f"""
             以下の記事の要約と英語学習レポートを作成してください。
@@ -29,16 +31,21 @@ def main():
             """
             
             try:
-                # モデル呼び出し（MODEL_ID変数を使い、promptを正しく渡します）
+                # 【重要】ここを修正： contents に prompt 変数を渡すようにしました
                 response = client.models.generate_content(
                     model=MODEL_ID,
                     contents=prompt
                 )
+                
+                # 生成されたテキストをレポートに追加
                 report_content += f"## {entry.title}\n{response.text}\n\n---\n"
+                print(f"Successfully generated report for: {entry.title}")
+                
             except Exception as e:
                 print(f"Error processing {entry.title}: {e}")
                 continue
     
+    # 最終的な結果を書き込み
     with open("report.md", "w", encoding="utf-8") as f:
         f.write(report_content)
 
