@@ -4,15 +4,12 @@ import os
 
 # API設定
 client = genai.Client(api_key=os.environ["GEMINI_API_KEY"])
-
-# モデルID（1.5 Flashを使用）
 MODEL_ID = "models/gemini-1.5-flash" 
 
-# フィードを追加・更新しました
 RSS_FEEDS = [
     "https://hnrss.org/frontpage",
     "https://zenn.dev/feed",
-    "https://news.google.com/rss/topics/CAAqJggKIiBDQkFTRWdvSUwyMHZNRGRqTVhWbUVnSnRhSFFvQUFQAQ?hl=ja&gl=JP&ceid=JP:ja" # Google Techニュース(日本)を追加
+    "https://news.google.com/rss/topics/CAAqJggKIiBDQkFTRWdvSUwyMHZNRGRqTVhWbUVnSnRhSFFvQUFQAQ?hl=ja&gl=JP&ceid=JP:ja"
 ]
 
 def main():
@@ -22,7 +19,10 @@ def main():
     for url in RSS_FEEDS:
         print(f"Fetching feed: {url}")
         feed = feedparser.parse(url)
-        # 枠を考慮して各フィードから上位2記事を取得
+        if not feed.entries:
+            report_content += f"⚠️ フィードの取得に失敗しました: {url}\n\n"
+            continue
+
         for entry in feed.entries[:2]: 
             prompt = f"""
             以下の記事の要約と英語学習レポートを作成してください。
@@ -40,16 +40,21 @@ def main():
                     model=MODEL_ID,
                     contents=prompt
                 )
-                report_content += f"## {entry.title}\n{response.text}\n\n---\n"
+                # AIが空の返答をした場合のチェック
+                if response.text:
+                    report_content += f"## {entry.title}\n{response.text}\n\n---\n"
+                else:
+                    report_content += f"## {entry.title}\n⚠️ AIからの応答が空でした。\n\n---\n"
             except Exception as e:
-                print(f"Error processing {entry.title}: {e}")
+                # エラーが起きたらその内容をレポートに書き込む
+                print(f"Error: {e}")
+                report_content += f"## {entry.title}\n❌ エラー発生: {str(e)}\n\n---\n"
                 continue
     
     # ファイル書き出し
     with open("report.md", "w", encoding="utf-8") as f:
         f.write(report_content)
-    
-    print("Success: report.md has been updated.")
+    print("Success: report.md has been written.")
 
 if __name__ == "__main__":
     main()
