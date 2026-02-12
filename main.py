@@ -4,7 +4,7 @@ import os
 
 # API設定 (2026年最新版の書き方)
 client = genai.Client(api_key=os.environ["GEMINI_API_KEY"])
-MODEL_ID = "gemini-2.0-flash" # 最新の安定モデルを指定
+MODEL_ID = "gemini-1.5-flash" # モデルを指定
 
 RSS_FEEDS = [
     "https://hnrss.org/frontpage",
