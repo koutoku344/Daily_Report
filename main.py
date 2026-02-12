@@ -1,15 +1,14 @@
 import feedparser
-import google.generativeai as genai
+from google import genai
 import os
 
-# API設定
-genai.configure(api_key=os.environ["gemini_api_key"])
-model = genai.GenerativeModel('gemini-1.5-flash')
+# API設定 (2026年最新版の書き方)
+client = genai.Client(api_key=os.environ["GEMINI_API_KEY"])
+MODEL_ID = "gemini-2.0-flash" # 最新の安定モデルを指定
 
-# 収集したいRSSフィード（英・日）
 RSS_FEEDS = [
-    "https://hnrss.org/frontpage",  # Hacker News (英)
-    "https://zenn.dev/feed"         # Zenn (日)
+    "https://hnrss.org/frontpage",
+    "https://zenn.dev/feed"
 ]
 
 def main():
@@ -17,7 +16,6 @@ def main():
     
     for url in RSS_FEEDS:
         feed = feedparser.parse(url)
-        # 最新3件を取得
         for entry in feed.entries[:3]:
             prompt = f"""
             以下の記事の要約と英語学習レポートを作成してください。
@@ -28,10 +26,13 @@ def main():
             2. 注目すべき技術用語(英語)と意味
             3. (英文の場合) 構文のポイント解説（1箇所ピックアップ）
             """
-            response = model.generate_content(prompt)
+            # モデル呼び出し
+            response = client.models.generate_content(
+                model=MODEL_ID,
+                contents=prompt
+            )
             report_content += f"## {entry.title}\n{response.text}\n\n---\n"
     
-    # レポートをファイルに書き出し
     with open("report.md", "w", encoding="utf-8") as f:
         f.write(report_content)
 
