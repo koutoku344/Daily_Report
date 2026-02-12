@@ -3,7 +3,7 @@ import google.generativeai as genai
 import os
 
 # API設定
-genai.configure(api_key=os.environ["gemini_key_api"])
+genai.configure(api_key=os.environ["gemini_api_key"])
 model = genai.GenerativeModel('gemini-1.5-flash')
 
 # 収集したいRSSフィード（英・日）
