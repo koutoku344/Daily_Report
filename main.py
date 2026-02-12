@@ -27,10 +27,15 @@ def main():
             3. (英文の場合) 構文のポイント解説（1箇所ピックアップ）
             """
             # モデル呼び出し
+            # main.py の 30行目付近
             response = client.models.generate_content(
-                model=MODEL_ID,
-                contents=prompt
+                model="gemini-3-flash",  # これを試してください
+                contents="...",
             )
+            #response = client.models.generate_content(
+            #    model=MODEL_ID,
+            #    contents=prompt
+            #)
             report_content += f"## {entry.title}\n{response.text}\n\n---\n"
     
     with open("report.md", "w", encoding="utf-8") as f:
