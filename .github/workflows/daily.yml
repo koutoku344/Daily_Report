@@ -8,23 +8,33 @@ jobs:
   run-report:
     runs-on: ubuntu-latest
     permissions:
-      contents: write
+      contents: write # リポジトリへの書き込み権限を付与
     steps:
       - uses: actions/checkout@v4
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.12' # バージョンアップ
+          python-version: '3.12'
+
       - name: Install dependencies
-        run: pip install feedparser google-genai # ライブラリ名を変更
+        run: pip install feedparser google-genai
+
       - name: Run Script
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: python main.py
+
       - name: Commit and Push Report
         run: |
+          # ユーザー設定
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
+          
+          # ファイルの追加とコミット
           git add report.md
-          git commit -m "Add daily report" || exit 0
+          # 変更がない場合にエラーにならないよう || exit 0 を追加
+          git commit -m "Add daily tech report $(date +'%Y-%m-%d')" || exit 0
+          
+          # プッシュ
           git push
