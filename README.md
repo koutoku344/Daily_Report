@@ -4,15 +4,15 @@
 
 ## 1. 前提
 
-- AWS構成
-  - VPC
-  - ALB
-  - EC2
-  - RDS
+* AWS構成
+  * VPC
+  * ALB
+  * EC2
+  * RDS
 
-- Terraform構成
-  - `envs/dev` / `envs/prod` が環境ごとのルートモジュール
-  - `modules/*` が再利用用の子モジュール
+* Terraform構成
+  *  `envs/dev` / `envs/prod` が環境ごとのルートモジュール
+  * `modules/*` が再利用用の子モジュール
 
 ---
 
@@ -62,30 +62,18 @@ terraform/
 ---
 
 ## 3. 役割
-### 3.1 envs/dev
-* dev環境の実行単位
-* terraform init/plan/apply の実行場所
-* 各moduleを呼び出す
-### 3.2 envs/prod
-* prod環境の実行単位
-* devと同じ構成で値だけ変える
-### 3.3 modules/vpc
-VPC
-Public/Private Subnet
-ルート関連
-3.4 modules/alb
-ALB
-Target Group
-Listener
-ALB用Security Group
-3.5 modules/ec2
-EC2
-EC2用Security Group
-Target Groupへの登録
-3.6 modules/rds
-RDS
-DB Subnet Group
-RDS用Security Group
+各ファイルの役割は次の通りである。
+| ファイル | 役割 |
+| envs/dev/main.tf | 開発環境で使う module 呼び出す |
+| envs/dev/variables.tf | 開発環境専用の変数定義  |
+| envs/dev/terraform.tfvars  | 変数の値を定義 |
+| envs/dev/outputs.tf | Terraform apply（またはoutput）を実行したときに出力する値を定義。人が確認したり他moduleに渡される際に利用  |
+| modules/vpc/main.tf  | VPC、Subnet、Route Table、IGW、NAT Gateway などを作成  |
+| modules/vpc/variables.tf  | VPC CIDR、Subnet CIDR などの入力値を定義 |
+| modules/vpc/  | Terraform apply（またはoutput）を実行したときに出力する値を定義。人が確認したり他moduleに渡される際に利用  |
+
+---
+
 4. Terraformでよく出る3種類
 4.1 入力変数
 外から受け取る値
