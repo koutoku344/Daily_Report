@@ -138,7 +138,7 @@ module "vpc" {
 
 ---
 
-5.2 子モジュール側
+###  5.2 子モジュール側
 
 ```hcl
 variable "vpc_cidr" {
@@ -299,7 +299,8 @@ module.ec2
 
 module.ec2
  └─ ec2_sg_id
-```
----
       ↓
 module.rds
+```
+---
+
