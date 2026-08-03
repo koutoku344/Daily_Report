@@ -66,12 +66,12 @@ terraform/
 | ファイル | 役割 |
 | ---- | ---- |
 | envs/dev/main.tf | 開発環境で使う module 呼び出す |
-| envs/dev/variables.tf | 開発環境専用の変数定義  |
-| envs/dev/terraform.tfvars  | 変数の値を定義 |
-| envs/dev/outputs.tf | Terraform apply（またはoutput）を実行したときに出力する値を定義。人が確認したり他moduleに渡される際に利用  |
-| modules/vpc/main.tf  | VPC、Subnet、Route Table、IGW、NAT Gateway などを作成  |
-| modules/vpc/variables.tf  | VPC CIDR、Subnet CIDR などの入力値を定義 |
-| modules/vpc/  | Terraform apply（またはoutput）を実行したときに出力する値を定義。人が確認したり他moduleに渡される際に利用  |
+| envs/dev/variables.tf | 開発環境専用の変数定義 |
+| envs/dev/terraform.tfvars | 変数の値を定義 |
+| envs/dev/outputs.tf | Terraform apply（またはoutput）を実行したときに出力する値を定義。人が確認したり他moduleに渡される際に利用 |
+| modules/vpc/main.tf | VPC、Subnet、Route Table、IGW、NAT Gateway などを作成 |
+| modules/vpc/variables.tf | VPC CIDR、Subnet CIDR などの入力値を定義 |
+| modules/vpc/outputs.tf | Terraform apply（またはoutput）を実行したときに出力する値を定義。人が確認したり他moduleに渡される際に利用 |
 
 ---
 
