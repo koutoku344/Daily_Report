@@ -1,4 +1,4 @@
-# Terraform / AWS 環境構築まとめ（Boostnote用）
+# Terraformメモ
 
 ---
 
@@ -57,15 +57,19 @@ terraform/
         ├── main.tf
         ├── variables.tf
         └── outputs.tf
-3. 役割
-3.1 envs/dev
-dev環境の実行単位
-terraform init/plan/apply の実行場所
-各moduleを呼び出す
-3.2 envs/prod
-prod環境の実行単位
-devと同じ構成で値だけ変える
-3.3 modules/vpc
+```
+
+---
+
+## 3. 役割
+### 3.1 envs/dev
+* dev環境の実行単位
+* terraform init/plan/apply の実行場所
+* 各moduleを呼び出す
+### 3.2 envs/prod
+* prod環境の実行単位
+* devと同じ構成で値だけ変える
+### 3.3 modules/vpc
 VPC
 Public/Private Subnet
 ルート関連
