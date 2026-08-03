@@ -75,20 +75,22 @@ terraform/
 
 ---
 
-4. Terraformでよく出る3種類
-4.1 入力変数
+## 4. Terraformでよく出る3種類
+### 4.1 入力変数
 外から受け取る値
 var.xxx で参照する
-hcl
+```hcl
 
 
 variable "vpc_cidr" {
   type = string
 }
-hcl
+```
 
-
+```hcl
 var.vpc_cidr
+```
+
 4.2 リソース
 Terraformが作るAWSリソース
 hcl
