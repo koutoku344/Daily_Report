@@ -77,15 +77,15 @@ terraform/
 
 ## 4. Terraformでよく出る3種類
 ### 4.1 入力変数
-var.xxx (外から受け取る)
+var.xxx（外部から受け取る）
+* 変数定義
 ```hcl
-
-
 variable "vpc_cidr" {
   type = string
 }
 ```
 
+* 変数名
 ```hcl
 var.vpc_cidr
 ```
@@ -94,19 +94,21 @@ var.vpc_cidr
 ### 4.2 リソース
 Terraformが作るAWSリソース
 
+* リソース定義
 ```hcl
 resource "aws_vpc" "this" {
   cidr_block = var.vpc_cidr
 }
 ```
 
+* リソース名
 ```hcl
 aws_vpc.this.cidr_block
 ```
 ---
 
 ### 4.3 リソース属性
-* 作成したリソースが持つ値
+作成したリソースが持つ値
 
 ```hcl
 aws_vpc.this.id
@@ -117,7 +119,7 @@ aws_vpc.this.cidr_block
   * 自分で設定した値
 
 * aws_vpc.this.id
-  * AWSが返す値
+  * AWSが返す値（**リソース定義が不要**）
 
 ---
 
@@ -132,7 +134,7 @@ module "vpc" {
 ```
 
 * 左辺 vpc_cidr
-  * 子モジュールが受け取る入力名
+  * 子モジュールが受け取る入力名（**子モジュール内ではvar.vpc_cidrとして扱われる**）
 * 右辺 var.vpc_cidr
   * 親モジュール側の値
 
@@ -152,7 +154,7 @@ resource "aws_vpc" "this" {
 }
 ```
 
-* 子モジュールでは var.vpc_cidr として使う
+* 子モジュールでは var_cidr を var.vpc_cidr として使う
 * cidr_block = vpc_cidr ではない
 * Terraformの入力変数は常に var. を付ける
 
@@ -223,49 +225,7 @@ module.vpc.vpc_id
 
 ---
 
-## 8. aws_vpc.this.id の意味
-### 8.1 これは何か
-* aws_vpc.this で作成したVPCのID
-* dev側から渡された変数ではない
-
----
-
-### 8.2 箱はどこか
-* variable で定義するものではない
-* resource "aws_vpc" "this" を定義すると
-* Terraform / AWS Provider が内部的に保持する
-
----
-
-### 8.3 つまり
-* var.xxx は自分で定義する箱
-* aws_vpc.this.id はresourceを作ると自動で持てる属性
-
----
-
-## 9. aws_vpc.this.cidr_block の値はどこで入るか
-
-```hcl
-resource "aws_vpc" "this" {
-  cidr_block = var.vpc_cidr
-}
-```
-
-* 左辺 cidr_block
-  * VPCリソースの設定項目
-* 右辺 var.vpc_cidr
-  * 子モジュールの入力変数
-つまり
-
-```hcl
-aws_vpc.this.cidr_block
-```
-
-の値はここで設定される
-
----
-
-## 10. 依存関係
+## 8. 依存関係
 ```text
 envs/dev/terraform.tfvars
   ↓
@@ -282,7 +242,7 @@ envs/dev/outputs.tf
 
 ---
 
-## 11. モジュール間の依存関係
+## 9. モジュール間の依存関係
 ```text
 module.vpc
  ├─ vpc_id
