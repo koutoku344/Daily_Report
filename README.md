@@ -64,6 +64,7 @@ terraform/
 ## 3. 役割
 各ファイルの役割は次の通りである。
 | ファイル | 役割 |
+| ---- | ---- |
 | envs/dev/main.tf | 開発環境で使う module 呼び出す |
 | envs/dev/variables.tf | 開発環境専用の変数定義  |
 | envs/dev/terraform.tfvars  | 変数の値を定義 |
